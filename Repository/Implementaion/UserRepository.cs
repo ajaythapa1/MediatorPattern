@@ -16,31 +16,32 @@ namespace MediatorR.Repository.Implementaion
 
         public async Task<bool> IsUserNameTaken(string userName)
         {
-            return await _context.Users.AnyAsync(user => user.UserName == userName);
+            return await _context.tblUserProfiles.AnyAsync(user => user.UserName == userName);
         }
         public async Task<Guid> AddUser(Users user)
         {
-            Users users = new Users()
+            TblUserProfile tblUserProfile = new TblUserProfile()
             {
                 Id = Guid.NewGuid(),
                 UserName = user.UserName,
                 Email = user.Email,
                 FirstName = user.FirstName,
                 LastName = user.LastName,
-                //PasswordHash = user.Password,
-                //IsActive = true,
-                //LastLoginDate = DateTime.UtcNow,
-                //RegistrationDate = DateTime.UtcNow
+                PasswordHash = user.Password,
+                Password = user.Password,
+                IsActive = true,
+                LastLoginDate = DateTime.UtcNow,
+                RegistrationDate = DateTime.UtcNow
             };
 
-            await _context.Users.AddAsync(users);
+            await _context.tblUserProfiles.AddAsync(tblUserProfile);
             await _context.SaveChangesAsync();
-            return user.Id;
+            return tblUserProfile.Id;
         }
 
         public async Task<bool> IsEmailTaken(string email)
         {
-            return await _context.Users.AnyAsync(user => user.Email == email);
+            return await _context.tblUserProfiles.AnyAsync(user => user.Email == email);
         }
     }
 }

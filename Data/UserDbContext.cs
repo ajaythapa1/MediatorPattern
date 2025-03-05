@@ -9,6 +9,6 @@ namespace MediatorR.Data
         {
 
         }
-       public DbSet<Users> Users { get; set; }
+       public DbSet<TblUserProfile> tblUserProfiles { get; set; }
     }
 }
