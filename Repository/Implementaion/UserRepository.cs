@@ -1,4 +1,5 @@
 ﻿using MediatorR.Data;
+using MediatorR.Dtos;
 using MediatorR.Models;
 using MediatorR.Repository.Interface;
 using Microsoft.EntityFrameworkCore;
@@ -42,6 +43,22 @@ namespace MediatorR.Repository.Implementaion
         public async Task<bool> IsEmailTaken(string email)
         {
             return await _context.tblUserProfiles.AnyAsync(user => user.Email == email);
+        }
+
+        public async Task<List<UserDto>> GetAllUser()
+        {
+            var result =  await _context.tblUserProfiles.ToListAsync();
+
+            List<UserDto> userDto = result.Select(u => new UserDto
+            {
+                UserName = u.UserName,
+                Email = u.Email,
+                FirstName = u.FirstName,
+                LastName = u.LastName,
+                RegistrationDate = u.RegistrationDate,
+            }).ToList();
+
+            return userDto;
         }
     }
 }

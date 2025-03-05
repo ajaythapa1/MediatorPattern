@@ -1,8 +1,10 @@
 ﻿using FluentValidation;
 using MediatorR.Commands;
 using MediatorR.Models;
+using MediatorR.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MediatorR.Controllers
@@ -21,7 +23,14 @@ namespace MediatorR.Controllers
             _uservalidator = uservalidator;
         }
 
-        [HttpPost]
+        [HttpGet("GetAllUser")]
+        public async Task<IActionResult> GetAllUser()
+        {
+            var result = await _mediator.Send(new GetAllUserQuery());
+            return Ok(result);
+        }
+
+        [HttpPost("Regsister")]
         public async Task<IActionResult> Register([FromBody] RegisterUserCommand command)
         {
             try

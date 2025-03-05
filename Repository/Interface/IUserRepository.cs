@@ -1,4 +1,5 @@
-﻿using MediatorR.Models;
+﻿using MediatorR.Dtos;
+using MediatorR.Models;
 
 namespace MediatorR.Repository.Interface
 {
@@ -7,5 +8,6 @@ namespace MediatorR.Repository.Interface
         Task<bool> IsUserNameTaken(string userName);
         Task<bool> IsEmailTaken(string email);
         Task<Guid> AddUser(Users user);
+        Task<List<UserDto>> GetAllUser();
     }
 }

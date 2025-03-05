@@ -2,7 +2,7 @@ using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatorR.Commands;
 using MediatorR.Data;
-using MediatorR.Handlers;
+using MediatorR.Handlers.Commands;
 using MediatorR.Repository.Implementaion;
 using MediatorR.Repository.Interface;
 using MediatorR.Services.Implementation;
