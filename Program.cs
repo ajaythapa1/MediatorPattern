@@ -1,3 +1,5 @@
+using System.Reflection;
+using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using MediatorR.Commands;
@@ -9,7 +11,9 @@ using MediatorR.Services.Implementation;
 using MediatorR.Services.Interface;
 using MediatorR.Validators;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -24,11 +28,15 @@ option.UseSqlServer(connectionString));
 
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddValidatorsFromAssemblyContaining<UserValidator>();
+builder.Services. AddValidatorsFromAssemblyContaining<LoginValidator>();
 
-builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<RegisterUserCommand>());
+//builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssemblyContaining<RegisterUserCommand>());
+
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly()));
 
 
 builder.Services.AddTransient<IRegisterUserService, RegisterUserService>();
+builder.Services.AddTransient<ILoginUserService, LoginUserService>();
 
 builder.Services.AddTransient<IUserRepository, UserRepository>();
 builder.Services.AddTransient<IRequestHandler<RegisterUserCommand, Guid>, RequestUserHandeler>();
@@ -37,6 +45,29 @@ builder.Services.AddTransient<IRequestHandler<RegisterUserCommand, Guid>, Reques
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+var key = Encoding.UTF8.GetBytes(jwtSettings["Key"]);
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtSettings["Issuer"],
+        ValidAudience = jwtSettings["Audience"],
+        IssuerSigningKey = new SymmetricSecurityKey(key)
+    };
+});
+
 
 var app = builder.Build();
 
