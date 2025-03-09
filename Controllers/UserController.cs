@@ -1,10 +1,7 @@
 ﻿using FluentValidation;
 using MediatorR.Commands;
-using MediatorR.Models;
 using MediatorR.Queries;
 using MediatR;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 
 namespace MediatorR.Controllers
@@ -16,11 +13,13 @@ namespace MediatorR.Controllers
         private readonly IMediator _mediator;
 
         private readonly IValidator<RegisterUserCommand> _uservalidator;
+        private readonly IValidator<LoginUserCommand> _loginvalidator;
 
-        public UserController(IMediator mediator, IValidator<RegisterUserCommand> uservalidator)
+        public UserController(IMediator mediator, IValidator<RegisterUserCommand> uservalidator, IValidator<LoginUserCommand> loginvalidator)
         {
             _mediator = mediator;
             _uservalidator = uservalidator;
+            _loginvalidator = loginvalidator;
         }
 
         [HttpGet("GetAllUser")]
@@ -35,10 +34,10 @@ namespace MediatorR.Controllers
         {
             try
             {
-                var ressult = _uservalidator.Validate(command);
-                if (!ressult.IsValid)
+                var result = _uservalidator.Validate(command);
+                if (!result.IsValid)
                 {
-                    return BadRequest(ressult.Errors);
+                    return BadRequest(result.Errors);
                 }
                 var userId = await _mediator.Send(command);
                 return Ok($"User registered with Id: {userId}");
@@ -48,6 +47,19 @@ namespace MediatorR.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPost("Login")]
+        public async Task<IActionResult> Login(LoginUserCommand command)
+        {
+            var result = _loginvalidator.Validate(command);
+            if (!result.IsValid)
+            {
+                return BadRequest(result.Errors);
+            }
+
+            var token = await _mediator.Send(command);
+            return Ok(token);
         }
     }
 }
